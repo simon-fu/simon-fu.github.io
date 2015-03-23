@@ -4,22 +4,40 @@
 <head>
   <meta charset="UTF-8">
   
-    <title>Simon Blog</title>
+    <title>P2P实时音视频之NAT穿越 | Simon Blog</title>
     <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
     
     <meta name="author" content="Simon">
     
 
     
-    <meta name="description">
-<meta property="og:type" content="website">
-<meta property="og:title" content="Simon Blog">
-<meta property="og:url" content="http://yoursite.com/">
+    <meta name="description" content="在P2P实时音视频领域，NAT穿越是一个非常重要的技术。NAT穿越技术使得客户端和客户端直接进行通讯，从而减少了端到端的延迟，并大大减轻了服务器的压力，降低成本。
+NAT是什么
+NAT的全称Network Address Translation，通常指的是把内网地址转换成外网地址。一般家用的无线路由器就用到了NAT技术。NAT技术的出现是为了解决IPv4地址不够的问题，而且还能够避免来自网络外部的">
+<meta property="og:type" content="article">
+<meta property="og:title" content="P2P实时音视频之NAT穿越">
+<meta property="og:url" content="http://yoursite.com/2015/03/23/nat-traversal/">
 <meta property="og:site_name" content="Simon Blog">
-<meta property="og:description">
+<meta property="og:description" content="在P2P实时音视频领域，NAT穿越是一个非常重要的技术。NAT穿越技术使得客户端和客户端直接进行通讯，从而减少了端到端的延迟，并大大减轻了服务器的压力，降低成本。
+NAT是什么
+NAT的全称Network Address Translation，通常指的是把内网地址转换成外网地址。一般家用的无线路由器就用到了NAT技术。NAT技术的出现是为了解决IPv4地址不够的问题，而且还能够避免来自网络外部的">
+<meta property="og:image" content="/img/nat_base.png">
+<meta property="og:image" content="/img/nat_symm_cone.png">
+<meta property="og:image" content="/img/table_cone.png">
+<meta property="og:image" content="/img/table_symm.png">
+<meta property="og:image" content="/img/table_cone_full.png">
+<meta property="og:image" content="/img/table_cone_ip.png">
+<meta property="og:image" content="/img/table_cone_port.png">
+<meta property="og:image" content="/img/traversal_cone_vs_cone.png">
+<meta property="og:image" content="/img/traversal_portcone_vs_symm.png">
+<meta property="og:image" content="/img/nat_result.png">
+<meta property="og:image" content="/img/traversal_netfilter_cone.png">
+<meta property="og:image" content="/img/traversal_netfilter_symm.png">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Simon Blog">
-<meta name="twitter:description">
+<meta name="twitter:title" content="P2P实时音视频之NAT穿越">
+<meta name="twitter:description" content="在P2P实时音视频领域，NAT穿越是一个非常重要的技术。NAT穿越技术使得客户端和客户端直接进行通讯，从而减少了端到端的延迟，并大大减轻了服务器的压力，降低成本。
+NAT是什么
+NAT的全称Network Address Translation，通常指的是把内网地址转换成外网地址。一般家用的无线路由器就用到了NAT技术。NAT技术的出现是为了解决IPv4地址不够的问题，而且还能够避免来自网络外部的">
 
 
     
@@ -74,12 +92,10 @@
 </div>
     </header>
     <div id="container">
-      <div id="main">
-
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
   <h1 itemprop="name">
     
       <a href="/2015/03/23/nat-traversal/" title="P2P实时音视频之NAT穿越" itemprop="url">P2P实时音视频之NAT穿越</a>
@@ -93,9 +109,16 @@
     
   </p>
 </header>
-    <div class="article-content">
-        
-        <p>在P2P实时音视频领域，NAT穿越是一个非常重要的技术。NAT穿越技术使得客户端和客户端直接进行通讯，从而减少了端到端的延迟，并大大减轻了服务器的压力，降低成本。</p>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">Contents</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#NAT是什么"><span class="toc-number">1.</span> <span class="toc-text">NAT是什么</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#NAT工作原理"><span class="toc-number">2.</span> <span class="toc-text">NAT工作原理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#NAT类型"><span class="toc-number">3.</span> <span class="toc-text">NAT类型</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Cone_NAT子类型"><span class="toc-number">4.</span> <span class="toc-text">Cone NAT子类型</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#穿越NAT"><span class="toc-number">5.</span> <span class="toc-text">穿越NAT</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#现实中的NAT"><span class="toc-number">6.</span> <span class="toc-text">现实中的NAT</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#奇葩的NAT"><span class="toc-number">7.</span> <span class="toc-text">奇葩的NAT</span></a></li></ol>
+		
+		</div>
+		
+		<p>在P2P实时音视频领域，NAT穿越是一个非常重要的技术。NAT穿越技术使得客户端和客户端直接进行通讯，从而减少了端到端的延迟，并大大减轻了服务器的压力，降低成本。</p>
 <h3 id="NAT是什么">NAT是什么</h3>
 <p>NAT的全称Network Address Translation，通常指的是把内网地址转换成外网地址。一般家用的无线路由器就用到了NAT技术。NAT技术的出现是为了解决IPv4地址不够的问题，而且还能够避免来自网络外部的攻击，隐藏和保护网络内部的计算机。凡事有利必有弊，NAT同样带来了新的问题。</p>
 <h3 id="NAT工作原理">NAT工作原理</h3>
@@ -173,14 +196,9 @@
 <center><img src="/img/traversal_netfilter_cone.png" alt=""></center><br>在穿越时，假如右边B发给A的包比左边A发给B的包先到达netfilter，netfilter会用之前的映射地址eB把B的包发出去，这时候netfilter表现出来的是锥型NAT，穿越成功。反过来，假如A发给B的包先到达netfilter，那么B发给A的包就会被netfilter映射成新的地址eB’，这时候netfilter表现出来的是对称型NAT，导致穿越失败。见下图。<br><center><img src="/img/traversal_netfilter_symm.png" alt=""></center>   
 
 <p>netfilter不分内网和外网，它会跟踪内网和外网所有协议的连接（conntrack），包括tcp和udp。当外网的数据先到达netfilter时，netfilter创建一条conntrack，内网的数据后到达netfilter，netfilter发现conntrack1已经占用了端口，就会选择另外一个外网端口作为映射端口。看官如果想了解详细情况，请阅读博大精深的netfilter源码，这里提示一下，看get_unique_tuple函数就可以了。虽然netfilter很奇葩，但我们的产品依然能够轻松的穿越它。</p>
-
-        
-        
-        <p class="article-more-link">
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
+  
+	</div>
+		<footer class="article-footer clearfix">
 <div class="article-catetags">
 
 
@@ -188,24 +206,30 @@
 
 
 
-
-<div class="comments-count">
+	<div class="article-share" id="share">
 	
-</div>
+	  <div data-url="http://yoursite.com/2015/03/23/nat-traversal/" data-title="P2P实时音视频之NAT穿越 | Simon Blog" data-tsina="null" class="share clearfix">
+	  </div>
+	
+	</div>
+
 
 </footer>
 
+   	       
+	</article>
+	
+	
 
-    </article>
-
-
-
-
-
-
-
-</div>
+</div>  
       <div class="openaside"><a class="navbutton" href="#" title="Show Sidebar"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">Contents</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#NAT是什么"><span class="toc-number">1.</span> <span class="toc-text">NAT是什么</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#NAT工作原理"><span class="toc-number">2.</span> <span class="toc-text">NAT工作原理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#NAT类型"><span class="toc-number">3.</span> <span class="toc-text">NAT类型</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Cone_NAT子类型"><span class="toc-number">4.</span> <span class="toc-text">Cone NAT子类型</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#穿越NAT"><span class="toc-number">5.</span> <span class="toc-text">穿越NAT</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#现实中的NAT"><span class="toc-number">6.</span> <span class="toc-text">现实中的NAT</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#奇葩的NAT"><span class="toc-number">7.</span> <span class="toc-text">奇葩的NAT</span></a></li></ol>
+ 
+  </div>
 
 <div id="asidepart">
 <div class="closeaside"><a class="closebutton" href="#" title="Hide Sidebar"></a></div>
@@ -300,6 +324,8 @@ $(document).ready(function(){
       m.removeClass('moveMain');
       a.css('display', 'block').removeClass('fadeOut');
       o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
         
     }
   });
@@ -319,6 +345,67 @@ $(document).ready(function(){
 });
 </script>
 
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      h  = $('article h2')
+      ah = $('article h2'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  if(ah.length==0){
+    t.css('display','none');
+  }else{
+    c.click(function(){
+      ta.css('display', 'block').addClass('fadeIn');
+    });
+    o.click(function(){
+      ta.css('display', 'none');
+    });
+    $(window).scroll(function(){
+      ta.css("top",Math.max(140,320-$(this).scrollTop()));
+    });
+  };
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<a href="#" class="overlay" id="qrcode"></a>',
+  '<div class="qrcode clearfix"><span>扫描二维码分享到微信朋友圈</span><a class="qrclose" href="#nothing"></a><strong>Loading...Please wait</strong><img id="qrcode-pic" data-src="http://s.jiathis.com/qrcode.php?url=' + encodedUrl + '"/></div>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="微信"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="微博"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+  $('.article-share-qrcode').click(function(){
+    var imgSrc = $('#qrcode-pic').attr('data-src');
+    $('#qrcode-pic').attr('src', imgSrc);
+    $('#qrcode-pic').load(function(){
+        $('.qrcode strong').text(' ');
+    });
+  });
+});     
+</script>
 
 
 
@@ -327,6 +414,27 @@ $(document).ready(function(){
 
 
 
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
 
 
 
@@ -354,4 +462,4 @@ $(document).ready(function(){
 <!-- MathJax End -->
 
   </body>
- </html>
+</html>
