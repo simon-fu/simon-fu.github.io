@@ -152,7 +152,6 @@
 
 
 <p>其中 -b 16K 指定了带宽参数。测试结果为丢包0个，平均抖动为0.046毫秒。  </p>
-<p>-</p>
 <h3 id="自己开发">自己开发</h3>
 <p>从上面可以看出，ping和iperf各有优缺点，通常需要两者组合才能满足我们的需求。有时候现有工具不能满足实际应用的需求，比如说完全模拟实际业务环境或者在产品里集成测试功能，这时候就需要发挥“自己动手，丰衣足食”的精神，造出一个适合自己用的轮子来。我们这里只讨论关键点之一：<strong>如何匀速发送数据</strong>。<br>我们以设定发送包长为1024字节，带宽为64kbps为例子，讨论发送数据的实现方案。<br>发送数据最简单的方法就是，起一个线程，每秒直接发送完当前秒的数据，然后sleep一秒，再继续发送，如下：</p>
 <figure class="highlight C"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">for</span>(<span class="keyword">unsigned</span> second = <span class="number">0</span>; second &lt; test_seconds; second++)</div><div class="line">{</div><div class="line">    <span class="keyword">for</span>(<span class="keyword">unsigned</span> ui = <span class="number">0</span>; ui &lt; <span class="number">8</span>; ui++)</div><div class="line">    {</div><div class="line">        sendto <span class="number">1024</span> bytes;</div><div class="line">    }</div><div class="line">    msleep(<span class="number">1000</span>);</div><div class="line">}</div></pre></td></tr></table></figure>
