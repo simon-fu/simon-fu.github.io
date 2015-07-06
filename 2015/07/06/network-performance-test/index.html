@@ -1,0 +1,472 @@
+
+ <!DOCTYPE HTML>
+<html >
+<head>
+  <meta charset="UTF-8">
+  
+    <title>网络性能测试 | Simon Blog</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="Simon">
+    
+
+    
+    <meta name="description" content="实时音视频这种实时业务一般用udp传输数据，其对网络性能是非常敏感的，在实战中，经常需要测试当前端到端或端到云的网络性能。在这里我们讨论一下网络性能测试中所涉及到指标，技术和相关工具，以及如何编写自己的网络性能测试工具。  
+性能指标
+ 先给出几个比较重要的指标的定义以及它们的意义。  
+
+带宽（吞吐量）单位时间内传输的数据量，单位通常是每秒比特数，记作bps；带宽反映了网络的传输能力，越大越好；">
+<meta property="og:type" content="article">
+<meta property="og:title" content="网络性能测试">
+<meta property="og:url" content="http://yoursite.com/2015/07/06/network-performance-test/">
+<meta property="og:site_name" content="Simon Blog">
+<meta property="og:description" content="实时音视频这种实时业务一般用udp传输数据，其对网络性能是非常敏感的，在实战中，经常需要测试当前端到端或端到云的网络性能。在这里我们讨论一下网络性能测试中所涉及到指标，技术和相关工具，以及如何编写自己的网络性能测试工具。  
+性能指标
+ 先给出几个比较重要的指标的定义以及它们的意义。  
+
+带宽（吞吐量）单位时间内传输的数据量，单位通常是每秒比特数，记作bps；带宽反映了网络的传输能力，越大越好；">
+<meta property="og:image" content="http://www.plantuml.com/plantuml/svg/Kr3WoiXCILL8oyylISglK53WyibFJipHjGjApSqlILMmKYX8JCvEBNc_fwCujL2d93CtjRWaCRT0Km6eD36v9BCi4QWAh4T1sG08tDmKk6fgQY36sEZgmir9JSx8Xne6qfkIYgPR0G00">
+<meta property="og:image" content="http://www.plantuml.com/plantuml/svg/Kr3WoiXCILL8oyylISglK53WSix9JCqhqRNBIoqfpo_Ajb8eI4pEJYqnVB-depYrq52d93CtjRWaCRV0K1EeEZ6v9BCiiIHL0Q9DGTa02DpSW39G_RfsmQb5PQb5UCr160DH33B6pSt00AThZ22c625CCGAv9YKLtJr0mPgQ6boEmMOCiY5GroW00000">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="网络性能测试">
+<meta name="twitter:description" content="实时音视频这种实时业务一般用udp传输数据，其对网络性能是非常敏感的，在实战中，经常需要测试当前端到端或端到云的网络性能。在这里我们讨论一下网络性能测试中所涉及到指标，技术和相关工具，以及如何编写自己的网络性能测试工具。  
+性能指标
+ 先给出几个比较重要的指标的定义以及它们的意义。  
+
+带宽（吞吐量）单位时间内传输的数据量，单位通常是每秒比特数，记作bps；带宽反映了网络的传输能力，越大越好；">
+
+
+    
+    <link rel="alternative" href="/atom.xml" title="Simon Blog" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/jacman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/jacman.jpg">
+    
+    <link rel="stylesheet" href="/css/style.css" type="text/css">
+
+</head>
+
+  <body>
+    <header>
+      <div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="Simon Blog" title="Simon Blog"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="Simon Blog">Simon Blog</a></h1>
+				<h2 class="blog-motto"></h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="Menu">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+						<li><a href="/about">About</a></li>
+					
+					<li>
+ 					
+					<form class="search" action="//google.com/search" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" name="q" autocomplete="off" maxlength="20" placeholder="Search" />
+						<input type="hidden" name="q" value="site:yoursite.com">
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2015/07/06/network-performance-test/" title="网络性能测试" itemprop="url">网络性能测试</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="http://yoursite.com/about" title="Simon" target="_blank" itemprop="author">Simon</a>
+		
+  <p class="article-time">
+    <time datetime="2015-07-05T16:00:00.000Z" itemprop="datePublished"> Published Jul 6 2015</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">Contents</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#性能指标"><span class="toc-number">1.</span> <span class="toc-text">性能指标</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#测试工具"><span class="toc-number">2.</span> <span class="toc-text">测试工具</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#自己开发"><span class="toc-number">3.</span> <span class="toc-text">自己开发</span></a></li></ol>
+		
+		</div>
+		
+		<p>实时音视频这种实时业务一般用udp传输数据，其对网络性能是非常敏感的，在实战中，经常需要测试当前端到端或端到云的网络性能。在这里我们讨论一下网络性能测试中所涉及到指标，技术和相关工具，以及如何编写自己的网络性能测试工具。  </p>
+<h3 id="性能指标">性能指标</h3>
+<p> 先给出几个比较重要的指标的定义以及它们的意义。  </p>
+<ul>
+<li><strong>带宽（吞吐量）</strong><br>单位时间内传输的数据量，单位通常是每秒比特数，记作bps；<br>带宽反映了网络的传输能力，越大越好；</li>
+<li><strong>丢包</strong><br>数据包丢失个数，等于“发送数据包数” － “接受数据包数”；<br>丢包反映了网络可靠性，越小越好；  </li>
+<li><strong>时延</strong><br>数据包从发送开始到接收到该数据所耗费的时间，单位通常是毫秒；<br>时延反映了网络的速度，越小越好；  </li>
+<li><strong>抖动</strong><br>指时延的变化，即两个数据包时延的差值；<br>抖动反映了网络的稳定性，越小越好；  </li>
+<li><strong>乱序</strong><br>指接收到的数据包顺序和发送顺序不一致的次数；<br>乱序反映了网络的稳定性，越小越好；<br>当乱序比较严重时，丢包也会比较严重，所以一般都以丢包指标为主，忽略乱序指标；  </li>
+</ul>
+<a id="more"></a>
+<h3 id="测试工具">测试工具</h3>
+<p>网上有很多测试网络性能的工具，如果它们能满足需求的话，就不用自己再造轮子了。<br><strong>ping</strong><br>ping是最常见的，几乎在所有的OS上都有它的存在。 其工作原理如图</p>
+<img src="http://www.plantuml.com/plantuml/svg/Kr3WoiXCILL8oyylISglK53WyibFJipHjGjApSqlILMmKYX8JCvEBNc_fwCujL2d93CtjRWaCRT0Km6eD36v9BCi4QWAh4T1sG08tDmKk6fgQY36sEZgmir9JSx8Xne6qfkIYgPR0G00">   
+
+<ul>
+<li>Local发送的数据包，Remote收到数据包后原样发回来；</li>
+<li>数据包里包含有序号和时间戳信息；</li>
+<li>序号用于判断是否丢包；</li>
+<li>时间戳用于计算来回时延（图中蓝色部分），它等于接收时间减去数据包时间戳；  </li>
+</ul>
+<p>不同OS的ping命令选项可能会略有差别，以Mac OSX的ping为例 </p>
+<figure class="highlight Python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">$ping -s <span class="number">1024</span> <span class="number">192.168</span><span class="number">.1</span><span class="number">.100</span></div><div class="line">PING www.microsoft.com (<span class="number">23.42</span><span class="number">.217</span><span class="number">.205</span>): <span class="number">1024</span> data bytes</div><div class="line"><span class="number">1032</span> bytes <span class="keyword">from</span> <span class="number">23.42</span><span class="number">.217</span><span class="number">.205</span>: icmp_seq=<span class="number">0</span> ttl=<span class="number">49</span> time=<span class="number">83.883</span> ms</div><div class="line"><span class="number">1032</span> bytes <span class="keyword">from</span> <span class="number">23.42</span><span class="number">.217</span><span class="number">.205</span>: icmp_seq=<span class="number">1</span> ttl=<span class="number">49</span> time=<span class="number">77.958</span> ms</div><div class="line"><span class="number">1032</span> bytes <span class="keyword">from</span> <span class="number">23.42</span><span class="number">.217</span><span class="number">.205</span>: icmp_seq=<span class="number">2</span> ttl=<span class="number">49</span> time=<span class="number">80.053</span> ms</div><div class="line"><span class="number">1032</span> bytes <span class="keyword">from</span> <span class="number">23.42</span><span class="number">.217</span><span class="number">.205</span>: icmp_seq=<span class="number">3</span> ttl=<span class="number">49</span> time=<span class="number">78.244</span> ms</div><div class="line"><span class="number">1032</span> bytes <span class="keyword">from</span> <span class="number">23.42</span><span class="number">.217</span><span class="number">.205</span>: icmp_seq=<span class="number">4</span> ttl=<span class="number">49</span> time=<span class="number">77.937</span> ms</div><div class="line">...</div><div class="line">^C</div><div class="line">--- <span class="number">192.168</span><span class="number">.1</span><span class="number">.100</span> ping statistics ---</div><div class="line"><span class="number">30</span> packets transmitted, <span class="number">29</span> packets received, <span class="number">3.3</span>% packet loss</div><div class="line">round-trip min/avg/max/stddev = <span class="number">77.843</span>/<span class="number">95.375</span>/<span class="number">141.314</span>/<span class="number">19.167</span> ms</div></pre></td></tr></table></figure>
+
+<p>其中 -s 1024 指示包的大小为1024字节；从ping结果可以看出，发送了30个包，收到29个包，3.3%的丢包率，最小时延77.843毫秒，最大时延141.314毫秒，平均时延95.375毫秒，时延的标准差19.167。另外，ping用的是ICMP协议，网络对ICMP协议处理性能，可能跟UDP或TCP是不一样的，所以测试结果只能做为参考。<br>小结：ping的优点是简单便捷，可以测试时延和丢包，缺点是无法测试带宽。    </p>
+<p><strong>iperf</strong><br>iperf功能功能强一些，可以测带宽，丢包，抖动， 但是测不了时延。它的工作原理如图：  </p>
+<img src="http://www.plantuml.com/plantuml/svg/Kr3WoiXCILL8oyylISglK53WSix9JCqhqRNBIoqfpo_Ajb8eI4pEJYqnVB-depYrq52d93CtjRWaCRV0K1EeEZ6v9BCiiIHL0Q9DGTa02DpSW39G_RfsmQb5PQb5UCr160DH33B6pSt00AThZ22c625CCGAv9YKLtJr0mPgQ6boEmMOCiY5GroW00000"> 
+
+<p>从图中可以看出iperf是单向发数据包，并不会像ping一样接收方把数据包发回给发送方，所以它是测不了时延，但能测试抖动。抖动等于接收时间间隔（绿色长度）减去发送时间间隔（蓝色长度，即timestamp2-timestamp1）。<br>下面是一个例子。  </p>
+<p>服务端：  </p>
+<figure class="highlight Python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">$iperf -u -s -p <span class="number">12345</span> -i <span class="number">1</span> -w <span class="number">1000000</span></div><div class="line">------------------------------------------------------------</div><div class="line">Server listening on UDP port <span class="number">12345</span></div><div class="line">Receiving <span class="number">1470</span> byte datagrams</div><div class="line">UDP buffer size:  <span class="number">977</span> KByte</div><div class="line">------------------------------------------------------------</div></pre></td></tr></table></figure>
+
+<p>客户端：  </p>
+<figure class="highlight Python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line">$ iperf -u -c <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span> -p <span class="number">12345</span> -i <span class="number">1</span> -t <span class="number">5</span> -b <span class="number">16</span>K -l <span class="number">62</span></div><div class="line">------------------------------------------------------------</div><div class="line">Client connecting to <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>, UDP port <span class="number">12345</span></div><div class="line">Sending <span class="number">62</span> byte datagrams</div><div class="line">UDP buffer size: <span class="number">9.00</span> KByte (default)</div><div class="line">------------------------------------------------------------</div><div class="line">[  <span class="number">4</span>] local <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span> port <span class="number">59805</span> connected <span class="keyword">with</span> <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span> port <span class="number">12345</span></div><div class="line">[ ID] Interval       Transfer     Bandwidth</div><div class="line">[  <span class="number">4</span>]  <span class="number">0.0</span>- <span class="number">1.0</span> sec  <span class="number">2.00</span> KBytes  <span class="number">16.4</span> Kbits/sec</div><div class="line">[  <span class="number">4</span>]  <span class="number">1.0</span>- <span class="number">2.0</span> sec  <span class="number">1.94</span> KBytes  <span class="number">15.9</span> Kbits/sec</div><div class="line">[  <span class="number">4</span>]  <span class="number">2.0</span>- <span class="number">3.0</span> sec  <span class="number">1.94</span> KBytes  <span class="number">15.9</span> Kbits/sec</div><div class="line">[  <span class="number">4</span>]  <span class="number">3.0</span>- <span class="number">4.0</span> sec  <span class="number">1.94</span> KBytes  <span class="number">15.9</span> Kbits/sec</div><div class="line">[  <span class="number">4</span>]  <span class="number">4.0</span>- <span class="number">5.0</span> sec  <span class="number">2.00</span> KBytes  <span class="number">16.4</span> Kbits/sec</div><div class="line">[  <span class="number">4</span>]  <span class="number">0.0</span>- <span class="number">5.1</span> sec  <span class="number">9.87</span> KBytes  <span class="number">16.0</span> Kbits/sec</div><div class="line">[  <span class="number">4</span>] Sent <span class="number">163</span> datagrams</div><div class="line">[  <span class="number">4</span>] Server Report:</div><div class="line">[  <span class="number">4</span>]  <span class="number">0.0</span>- <span class="number">5.1</span> sec  <span class="number">9.87</span> KBytes  <span class="number">16.0</span> Kbits/sec   <span class="number">0.046</span> ms    <span class="number">0</span>/  <span class="number">163</span> (<span class="number">0</span>%)</div></pre></td></tr></table></figure>
+
+
+
+<p>其中 -b 16K 指定了带宽参数。测试结果为丢包0个，平均抖动为0.046毫秒。  </p>
+<p>-</p>
+<h3 id="自己开发">自己开发</h3>
+<p>从上面可以看出，ping和iperf各有优缺点，通常需要两者组合才能满足我们的需求。有时候现有工具不能满足实际应用的需求，比如说完全模拟实际业务环境或者在产品里集成测试功能，这时候就需要发挥“自己动手，丰衣足食”的精神，造出一个适合自己用的轮子来。我们这里只讨论关键点之一：<strong>如何匀速发送数据</strong>。<br>我们以设定发送包长为1024字节，带宽为64kbps为例子，讨论发送数据的实现方案。<br>发送数据最简单的方法就是，起一个线程，每秒直接发送完当前秒的数据，然后sleep一秒，再继续发送，如下：</p>
+<figure class="highlight C"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">for</span>(<span class="keyword">unsigned</span> second = <span class="number">0</span>; second &lt; test_seconds; second++)</div><div class="line">{</div><div class="line">    <span class="keyword">for</span>(<span class="keyword">unsigned</span> ui = <span class="number">0</span>; ui &lt; <span class="number">8</span>; ui++)</div><div class="line">    {</div><div class="line">        sendto <span class="number">1024</span> bytes;</div><div class="line">    }</div><div class="line">    msleep(<span class="number">1000</span>);</div><div class="line">}</div></pre></td></tr></table></figure>
+
+<p>这种方法比较简单，但是因为发送数据是需要花费时间的，假如发送64Kbit花费了5毫秒，实际发送码率（带宽）为64/1005≈63.68Kbps，比设定值低一些。把发送时间考虑在内，第2个改进后的代码版本如下：</p>
+<figure class="highlight C"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">for</span>(<span class="keyword">unsigned</span> second = <span class="number">0</span>; second &lt; test_seconds; second++)</div><div class="line">{</div><div class="line">    <span class="keyword">unsigned</span> ts_start = gettimestamp();</div><div class="line">    <span class="keyword">for</span>(<span class="keyword">unsigned</span> ui = <span class="number">0</span>; ui &lt; <span class="number">8</span>; ui++)</div><div class="line">    {</div><div class="line">        sendto <span class="number">1024</span> bytes;</div><div class="line">    }</div><div class="line">    <span class="keyword">unsigned</span> elapsed = gettimestamp() - ts_start;</div><div class="line">    msleep(<span class="number">1000</span>-elapsed);</div><div class="line">}</div></pre></td></tr></table></figure>
+
+<p>从大尺度上看，这个版本确实会按设定带宽发送数据，但从小的的时间片上看，其瞬时发送速率是非常高的。假如发送64Kbit花费了5毫秒，则瞬时速率为 64*1000/5=12800Kbps，是设定值的20倍。这种瞬时高发送速率可能会导致网络中某些路由器或交换机来不及处理而大量丢包。所以我们继续改进，在每发送一个包时check是否发送太快，如果发送太快的话就sleep一下缓一缓。改进后的第三个版本如下：</p>
+<figure class="highlight C"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line">uint64_t sent_bytes = <span class="number">0</span>;</div><div class="line"><span class="keyword">unsigned</span> kick_time = gettimestamp();</div><div class="line"><span class="keyword">for</span>(<span class="keyword">unsigned</span> second = <span class="number">0</span>; second &lt; test_seconds; second++)</div><div class="line">{</div><div class="line">    sendto <span class="number">1024</span> bytes;</div><div class="line">    sent_bytes += <span class="number">1024</span>;</div><div class="line">    </div><div class="line">    <span class="keyword">unsigned</span> elapsed = gettimestamp() - kick_time;</div><div class="line">    <span class="keyword">unsigned</span> normal = sent_bytes * <span class="number">1000</span> * <span class="number">8</span> / （<span class="number">64</span>*<span class="number">1000</span>）;</div><div class="line">    <span class="keyword">if</span>(normal &gt; elapsed)</div><div class="line">    {</div><div class="line">        msleep(normal-elapsed);</div><div class="line">    }  </div><div class="line">}</div></pre></td></tr></table></figure>
+
+<p>这个版本基本能够按照设定值匀速发送数据了。当然，它还不是最完美的，当设定带宽很高而包长很小时，会导致太多的check，占用太多CPU。这里就不继续改进了，有兴趣的看官可以自己实现之。</p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	  <div data-url="http://yoursite.com/2015/07/06/network-performance-test/" data-title="网络性能测试 | Simon Blog" data-tsina="null" class="share clearfix">
+	  </div>
+	
+	</div>
+
+
+</footer>
+
+   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+
+<div class="next">
+<a href="/2015/03/23/nat-traversal/"  title="P2P实时音视频之NAT穿越">
+ <strong>下一篇：</strong><br/> 
+ <span>P2P实时音视频之NAT穿越
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+<section id="comments" class="comment">
+    <!-- 多说评论框 start -->
+    <div class="ds-thread" data-thread-key="post-network-performance-test" data-title="网络性能测试" data-url="http://yoursite.com/2015/07/06/network-performance-test/"></div>
+    <!-- 多说评论框 end -->
+    <!-- 多说公共JS代码 start (一个网页只需插入一次) -->
+    <script type="text/javascript">
+    var duoshuoQuery = {short_name:'simon-fu'};
+      (function() {
+        var ds = document.createElement('script');
+        ds.type = 'text/javascript';ds.async = true;
+        ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+        ds.charset = 'UTF-8';
+        (document.getElementsByTagName('head')[0] 
+         || document.getElementsByTagName('body')[0]).appendChild(ds);
+      })();
+      </script>
+    <!-- 多说公共JS代码 end -->
+</section>
+
+
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="Show Sidebar"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">Contents</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#性能指标"><span class="toc-number">1.</span> <span class="toc-text">性能指标</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#测试工具"><span class="toc-number">2.</span> <span class="toc-text">测试工具</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#自己开发"><span class="toc-number">3.</span> <span class="toc-text">自己开发</span></a></li></ol>
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="Hide Sidebar"></a></div>
+<aside class="clearfix">
+
+  
+
+  
+
+  <div class="linkslist">
+  <p class="asidetitle">Links</p>
+    <ul>
+        
+    </ul>
+</div>
+
+  
+
+
+  <div class="rsspart">
+	<a href="/atom.xml" target="_blank" title="rss">RSS</a>
+</div>
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p> Hello ,I&#39;m Simon in EaseMob. <br/>
+			This is my blog,believe it or not.</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+	</div>
+		<p class="copyright">Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2015 
+		
+		<a href="http://yoursite.com/about" target="_blank" title="Simon">Simon</a>
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else
+    {
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      h  = $('article h2')
+      ah = $('article h2'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  if(ah.length==0){
+    t.css('display','none');
+  }else{
+    c.click(function(){
+      ta.css('display', 'block').addClass('fadeIn');
+    });
+    o.click(function(){
+      ta.css('display', 'none');
+    });
+    $(window).scroll(function(){
+      ta.css("top",Math.max(140,320-$(this).scrollTop()));
+    });
+  };
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<a href="#" class="overlay" id="qrcode"></a>',
+  '<div class="qrcode clearfix"><span>扫描二维码分享到微信朋友圈</span><a class="qrclose" href="#nothing"></a><strong>Loading...Please wait</strong><img id="qrcode-pic" data-src="http://s.jiathis.com/qrcode.php?url=' + encodedUrl + '"/></div>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="微信"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="微博"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+  $('.article-share-qrcode').click(function(){
+    var imgSrc = $('#qrcode-pic').attr('data-src');
+    $('#qrcode-pic').attr('src', imgSrc);
+    $('#qrcode-pic').load(function(){
+        $('.qrcode strong').text(' ');
+    });
+  });
+});     
+</script>
+
+
+
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"simon-fu"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script> 
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+	<div id="totop">
+	<a title="Back to Top"><img src="/img/scrollup.png"/></a>
+	</div>
+	<script src="/js/totop.js"></script>
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+  </body>
+</html>

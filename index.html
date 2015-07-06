@@ -82,101 +82,35 @@
         <header class="article-info clearfix">
   <h1 itemprop="name">
     
-      <a href="/2015/03/27/nat-traversal/" title="P2P实时音视频之NAT穿越" itemprop="url">P2P实时音视频之NAT穿越</a>
+      <a href="/2015/07/06/network-performance-test/" title="网络性能测试" itemprop="url">网络性能测试</a>
   </h1>
   <p class="article-author">By
        
 		<a href="http://yoursite.com/about" title="Simon" target="_blank" itemprop="author">Simon</a>
 		
   <p class="article-time">
-    <time datetime="2015-03-27T00:59:45.000Z" itemprop="datePublished"> Published Mar 27 2015</time>
+    <time datetime="2015-07-05T16:00:00.000Z" itemprop="datePublished"> Published Jul 6 2015</time>
     
   </p>
 </header>
     <div class="article-content">
         
-        <p>在P2P实时音视频领域，NAT穿越是一个非常重要的技术。NAT穿越技术使得客户端和客户端直接进行通讯，从而减少了端到端的延迟，并大大减轻了服务器的压力，降低成本。</p>
-<h3 id="NAT是什么">NAT是什么</h3>
-<p>NAT的全称Network Address Translation，通常指的是把内网地址转换成外网地址。一般家用的无线路由器就用到了NAT技术。NAT技术的出现是为了解决IPv4地址不够的问题，而且还能够避免来自网络外部的攻击，隐藏和保护网络内部的计算机。凡事有利必有弊，NAT同样带来了新的问题。</p>
-<h3 id="NAT工作原理">NAT工作原理</h3>
-<p>我们先看一下NAT的工作过程  </p>
-<center><img src="/img/nat_base.png" alt=""></center>  
-
+        <p>实时音视频这种实时业务一般用udp传输数据，其对网络性能是非常敏感的，在实战中，经常需要测试当前端到端或端到云的网络性能。在这里我们讨论一下网络性能测试中所涉及到指标，技术和相关工具，以及如何编写自己的网络性能测试工具。  </p>
+<h3 id="性能指标">性能指标</h3>
+<p> 先给出几个比较重要的指标的定义以及它们的意义。  </p>
 <ul>
-<li>NAT维护一个地址映射表，记录内容为内网主机地址iAddr、映射地址eAddr和外网主机地址hAddr，表初始为空</li>
-<li>内网主机主机A发送数据包给服务器A，10.0.1.10:1111 －&gt; 203.22.22.22:6000;</li>
-<li>NAT在映射表里没找到源地址等于10.0.1.10:1111的记录，于是新建一条记录1，分配外网端口2000</li>
-<li>NAT修改数据包的源地址再发到外网，202.11.11.11:2000 －&gt; 203.22.22.22:6000；</li>
-<li>后续所有源地址为10.0.1.10:1111，目标地址为203.22.22.22:6000都做同样的修改</li>
-<li>服务器A发送数据包回给内网主机A，203.22.22.22:6000 －&gt; 202.11.11.11:2000</li>
-<li>NAT发现外网地址202.11.11.11:2000映射的内网地址为10.0.1.10:1111</li>
-<li>NAT修改数据包的目的地址再发到内网，203.22.22.22:6000 -&gt; 10.0.1.10:1111</li>
-<li>内网主机B和服务器B通讯的过程也类似A，只是分配的外网端口是3000</li>
+<li><strong>带宽（吞吐量）</strong><br>单位时间内传输的数据量，单位通常是每秒比特数，记作bps；<br>带宽反映了网络的传输能力，越大越好；</li>
+<li><strong>丢包</strong><br>数据包丢失个数，等于“发送数据包数” － “接受数据包数”；<br>丢包反映了网络可靠性，越小越好；  </li>
+<li><strong>时延</strong><br>数据包从发送开始到接收到该数据所耗费的时间，单位通常是毫秒；<br>时延反映了网络的速度，越小越好；  </li>
+<li><strong>抖动</strong><br>指时延的变化，即两个数据包时延的差值；<br>抖动反映了网络的稳定性，越小越好；  </li>
+<li><strong>乱序</strong><br>指接收到的数据包顺序和发送顺序不一致的次数；<br>乱序反映了网络的稳定性，越小越好；<br>当乱序比较严重时，丢包也会比较严重，所以一般都以丢包指标为主，忽略乱序指标；  </li>
 </ul>
-<p>从上面NAT的工作过程可以看出，NAT通过修改数据包的源地址或目的地址来实现地址映射的。NAT修改数据包对内网主机是透明的，不需要内网主机做任何配置，方便简单。<br>NAT工作原理可以总结为：  </p>
-<ol>
-<li><strong>只有内网主机主动向外网发送数据，外网才有可能发送数据给内网主机</strong>  </li>
-<li><strong>内网发送到外网的数据包会被修改源地址，外网发送给内网的数据包会被修改目的地址</strong></li>
-</ol>
-<p>很显然，第1条原理保护了内网主机免受外网的攻击，但却违背了网络端到端的设计原则。如果两台主机在不同的NAT后面，是没有办法穿越NAT直接端到端（P2P)）通讯的。幸运的是，在大部分情况下，我们可以在服务器的协助下实现NAT穿越。</p>
-<h3 id="NAT类型">NAT类型</h3>
-<p>在讲NAT穿越之前，我们先来分析NAT的类型。由于没有强制性的NAT标准，在实际应用中NAT有多种类型。根据内网地址到外网地址的映射是1对1，还是1对多，NAT可以分成两大类：<strong>Cone NAT（锥型）</strong>和 <strong>Symmetric NAT（对称型）</strong></p>
-<center><img src="/img/nat_symm_cone.png" alt=""></center>
-
-<p>从图中的淡紫色形状应该可以看出来它们名字的来历（呕心沥血独家原创图）。锥型NAT把一个内网地址固定的转换成一个外网地址，即1对1映射；对称型NAT的一个内网地址可以转换成多个外网地址，即1对多映射。从锥型NAT和对称型NAT的定义我们可以推测出他们的映射表内容。<br>锥型映射表应该是这样的：  </p>
-<center><img src="/img/table_cone.png" alt=""></center><br>对称型映射表应该是这样的：<br><center><img src="/img/table_symm.png" alt=""></center>  
-
-<h3 id="Cone_NAT子类型">Cone NAT子类型</h3>
-<p>锥型NAT还可以再继续细分类型。外网主机发送给内网主机的数据包在通过NAT时，NAT会根据映射表的外网主机地址限制条件来允许或限制数据包通过。根据这个限制条件，锥型NAT还可以分成三种子类型：  </p>
-<p><strong>Full-cone NAT，全锥型</strong><br>一旦某内网地址向外网发送过数据包，NAT允许任意外网地址发送数据给此内网地址。  </p>
-<center><img src="/img/table_cone_full.png" alt=""></center><br><strong>(Address)-restricted-cone NAT，（地址）限制锥型</strong><br>一旦某内网地址向某外网主机发送过数据包，NAT允许此外网主机发送数据给此内网地址。换句话说，只限制ip，不限制端口。<br><center><img src="/img/table_cone_ip.png" alt=""></center><br><strong>Port-restricted cone NAT，端口限制锥型</strong><br>只有从内网地址发送过的外网地址，NAT才允许此外网地址发送数据给此内网地址。换句话说，同时限制ip和端口。<br><center><img src="/img/table_cone_port.png" alt=""></center>  
-
-
-<h3 id="穿越NAT">穿越NAT</h3>
-<p>通过上面对NAT的分析可以看出，在不同NAT后面的两个客户端A和B，如果知道对方的NAT映射后的外网地址，就有可能直接发送UDP包给对方外网地址进行通讯。但是这里有一个问题，客户端不能直接获取自身的NAT外网地址，解决的办法就是引入一个服务器S来协助客户端获取自身的外网地址。NAT的类型有多种，类型两两组合有很多种，不是每种组合都可以被穿越的，我们来分析两个典型的组合。  </p>
-<p><strong>锥型 vs 锥型</strong>  </p>
-<center><img src="/img/traversal_cone_vs_cone.png" alt=""></center>  
-
-<ol>
-<li>A发送数据包给S询问自身地址，S把A的外网地址eA返回给A</li>
-<li>B发送数据包给S询问自身地址，S把B的外网地址eB返回给B</li>
-<li>S把B的外网地址eB发送给A</li>
-<li>S把A的外网地址eA发送给B</li>
-<li>A发送数据包给eB，B发送数据包给eA，建立P2P通道  </li>
-</ol>
-<p><strong>端口限制锥型 vs 对称型</strong>  </p>
-<center><img src="/img/traversal_portcone_vs_symm.png" alt=""></center>  
-
-<ol>
-<li>A发送数据包给S询问自身地址，S把A的外网地址eA返回给A</li>
-<li>B发送数据包给S询问自身地址，S把B的外网地址eB1返回给B</li>
-<li>S把B的外网地址eB1发送给A</li>
-<li>S把A的外网地址eA发送给B</li>
-<li>A发送数据包给eB1，因为eB1只接受来自S的数据，所以A的数据被NATB丢弃</li>
-<li>B通过发送数据包给eA，因为eA是新的目标地址，NATB 创建新的映射地址eB2，而eA只接受来自S和eB1的数据，所以B的数据被NATA丢弃，无法建立P2P通道</li>
-</ol>
-<p>这里就不一一分析其他组合，各位看官可以自行分析，这里直接给出结论：  </p>
-<center><img src="/img/nat_result.png" alt=""></center>  
-
-
-<h3 id="现实中的NAT">现实中的NAT</h3>
-<p>在穿越NAT的结论里，只有两种组合不能穿越，即<strong>对称型vs对称型</strong>、<strong>端口限制锥型vs对称型</strong>，占比并不高，看起来结论还不错。但是，理论是美好的，现实是残酷的，生活中对称型NAT的数量并不少。只要是大型组织的网络，一般都采用对称型NAT，因为这类NAT安全性最好。我们团队曾经对常用的网络做过调查研究，以下是调研结果：   </p>
-<ul>
-<li>有公网IP的宽带：比如联通的ADSL，这类宽带会给每个用户分配一个公网IP，所以其NAT类型取决于用户所选用的路由器，大部分家用路由器都是端口限制锥型NAT；  </li>
-<li>无公网IP的宽带：比如宽带通，这类宽带给用户分配的是局域网IP，连接公网的NAT是运营商的，一般都是对称型NAT；</li>
-<li>移动互联网：跟“无公网IP的宽带”类似，分配给手机的是局域网IP，出口基本都是对称型NAT；</li>
-<li>大公司路由器：大部分都把路由器配置成对称型NAT；  </li>
-</ul>
-<p>比较可惜的是移动互联网也是对称型NAT，也就是说，如果通讯双方都走3G或4G的话，是很难直接P2P通讯的。我们的产品可以穿越部分对称型NAT，当碰到无法穿越的NAT时，为用户提供relay服务，保证接通率。</p>
-<h3 id="奇葩的NAT">奇葩的NAT</h3>
-<p>我们现在知道NAT分为1种对称型和3种锥型，那还有没有其他类型的NAT呢？答案是YES。这个NAT各位看官应该并不陌生，它就是大名鼎鼎的netfilter/iptables。大家接触最多的iptables，是运行在ring3层用户态的配置程序，而运行在ring0内核态的netfilter才是真正实现NAT功能的程序。在大部分情况下，netfilter表现出来的是人见人爱的锥型NAT，但是在某种条件刺激下，它就华丽丽地变身成高贵冷漠的对称型NAT！<br>先上图：  </p>
-<center><img src="/img/traversal_netfilter_cone.png" alt=""></center><br>在穿越时，假如右边B发给A的包比左边A发给B的包先到达netfilter，netfilter会用之前的映射地址eB把B的包发出去，这时候netfilter表现出来的是锥型NAT，穿越成功。反过来，假如A发给B的包先到达netfilter，那么B发给A的包就会被netfilter映射成新的地址eB’，这时候netfilter表现出来的是对称型NAT，导致穿越失败。见下图。<br><center><img src="/img/traversal_netfilter_symm.png" alt=""></center>   
-
-<p>netfilter不分内网和外网，它会跟踪内网和外网所有协议的连接（conntrack），包括tcp和udp。当外网的数据先到达netfilter时，netfilter创建一条conntrack，内网的数据后到达netfilter，netfilter发现conntrack1已经占用了端口，就会选择另外一个外网端口作为映射端口。看官如果想了解详细情况，请阅读博大精深的netfilter源码，这里提示一下，看get_unique_tuple函数就可以了。虽然netfilter很奇葩，但我们的产品依然能够轻松的穿越它。</p>
 
         
         
         <p class="article-more-link">
+          
+            <a href="/2015/07/06/network-performance-test/#more">Read More</a>
           
        </p>
     </div>
@@ -192,7 +126,64 @@
 <div class="comments-count">
 	
 	  	<span></span>
-		<a href="/2015/03/27/nat-traversal/#comments" class="ds-thread-count comments-count-link" data-thread-key="2015/03/27/nat-traversal/" data-count-type="comments">&nbsp;</a>
+		<a href="/2015/07/06/network-performance-test/#comments" class="ds-thread-count comments-count-link" data-thread-key="2015/07/06/network-performance-test/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2015/03/23/nat-traversal/" title="P2P实时音视频之NAT穿越" itemprop="url">P2P实时音视频之NAT穿越</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="http://yoursite.com/about" title="Simon" target="_blank" itemprop="author">Simon</a>
+		
+  <p class="article-time">
+    <time datetime="2015-03-22T16:00:00.000Z" itemprop="datePublished"> Published Mar 23 2015</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <p>在P2P实时音视频领域，NAT穿越是一个非常重要的技术。NAT穿越技术使得客户端和客户端直接进行通讯，从而减少了端到端的延迟，并大大减轻了服务器的压力，降低成本。</p>
+<h3 id="NAT是什么">NAT是什么</h3>
+<p>NAT的全称Network Address Translation，通常指的是把内网地址转换成外网地址。一般家用的无线路由器就用到了NAT技术。NAT技术的出现是为了解决IPv4地址不够的问题，而且还能够避免来自网络外部的攻击，隐藏和保护网络内部的计算机。凡事有利必有弊，NAT同样带来了新的问题。  </p>
+
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/2015/03/23/nat-traversal/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2015/03/23/nat-traversal/#comments" class="ds-thread-count comments-count-link" data-thread-key="2015/03/23/nat-traversal/" data-count-type="comments">&nbsp;</a>
 	
 </div>
 
